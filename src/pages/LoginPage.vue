@@ -3,7 +3,7 @@
     <q-card
       :style="$q.screen.sm || $q.screen.xs ? '' : { width: '350px' }"
       class="ma-auto-0 q-py-xl text-center"
-      :class="$q.screen.sm || $q.screen.xs ? 'flat' : ''"
+      :flat="$q.screen.sm || $q.screen.xs"
     >
       <q-img
         src="download.jfif"
@@ -45,7 +45,6 @@
 
           <div class="flex justify-center">
             <q-btn label="Login" class="q-px-xl bg-green-5 text-white" style="width: 60%" type="submit" />
-<!--            <span class="text-blue cursor-pointer">Forgot Password?</span>-->
           </div>
         </q-form>
       </q-card-section>
