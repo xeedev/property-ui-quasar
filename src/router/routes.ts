@@ -16,11 +16,11 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', component: () => import('src/pages/DashboardPage.vue') },
     ],
-    beforeEnter: async (to, from, next) =>
-    {
-      if (await IsAuthenticated()) next();
-      else next('/login');
-    }
+    // beforeEnter: async (to, from, next) =>
+    // {
+    //   if (await IsAuthenticated()) next();
+    //   else next('/login');
+    // }
   },
   // {
   //   path: '/products',
