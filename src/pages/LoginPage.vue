@@ -130,4 +130,5 @@ export default {
 .ma-auto-0 {
   margin: 0 auto;
 }
+
 </style>
