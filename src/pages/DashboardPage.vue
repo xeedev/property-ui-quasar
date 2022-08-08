@@ -15,7 +15,7 @@
           <div class="row justify-center items-center text-white text-center">
             All Deals
             <br>
-            {{ statistics.orders }}
+            {{ statistics.properties }}
           </div>
         </q-card-section>
       </q-card>
@@ -24,7 +24,7 @@
           <div class="row justify-center items-center text-white text-center">
             Pending Deals
             <br>
-            {{ statistics.pendingOrders }}
+            {{ statistics.pendingDeals }}
           </div>
         </q-card-section>
       </q-card>
@@ -33,7 +33,7 @@
           <div class="row justify-center items-center text-white text-center">
             Today's Deals
             <br>
-            {{ statistics.todaysOrders }}
+            {{ statistics.todaysDeals }}
           </div>
         </q-card-section>
       </q-card>
@@ -42,19 +42,19 @@
           <div class="row justify-center items-center text-white text-center">
             Total Societies
             <br>
-            {{ statistics.products }}
+            {{ statistics.societies }}
           </div>
         </q-card-section>
       </q-card>
-      <q-card class="my-card bg-grey cursor-pointer" @click="$router.push('categories')">
-        <q-card-section class="q-ma-xl">
-          <div class="row justify-center items-center text-white text-center">
-            Total Categories
-            <br>
-            {{ statistics.categories }}
-          </div>
-        </q-card-section>
-      </q-card>
+<!--      <q-card class="my-card bg-grey cursor-pointer" @click="$router.push('categories')">-->
+<!--        <q-card-section class="q-ma-xl">-->
+<!--          <div class="row justify-center items-center text-white text-center">-->
+<!--            Total Categories-->
+<!--            <br>-->
+<!--            {{ statistics.categories }}-->
+<!--          </div>-->
+<!--        </q-card-section>-->
+<!--      </q-card>-->
     </div>
   </q-page>
 </template>
