@@ -13,7 +13,7 @@
 
         <q-toolbar-title> Pride Properties </q-toolbar-title>
         <q-space></q-space>
-        <q-btn class="bg-yellow-5" label="Logout" @click="logout">
+        <q-btn color="yellow-7" label="Logout" @click="logout">
           <!-- <q-menu>
             <q-list style="min-width: 100px">
               <q-item clickable v-close-popup @click="$router.push('/login')">
@@ -73,10 +73,10 @@ const linksList = [
     link: 'dashboard',
   },
   {
-    title: 'Users',
-    caption: 'Manage Users',
+    title: 'Customers',
+    caption: 'Manage Customers',
     icon: 'account_circle',
-    link: 'users',
+    link: 'customers',
   },
   {
     title: 'Deals',
