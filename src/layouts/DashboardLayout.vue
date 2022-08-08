@@ -42,7 +42,7 @@
         <template v-for="(essentialLink,index) in essentialLinks" :key="index">
           <q-item clickable tag="a" @click="$router.push(essentialLink.link)">
             <q-item-section avatar>
-              <q-icon :name="essentialLink.icon" />
+              <q-icon :name="essentialLink.icon" color="yellow-7" />
             </q-item-section>
 
             <q-item-section>
@@ -70,7 +70,7 @@ const linksList = [
     title: 'Dashboard',
     caption: 'Statistics',
     icon: 'dashboard',
-    link: 'dashboard',
+    link: '/',
   },
   {
     title: 'Customers',
