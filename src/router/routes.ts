@@ -22,6 +22,18 @@ const routes: RouteRecordRaw[] = [
       else next('/login');
     }
   },
+  {
+    path: '/customers',
+    component: () => import('layouts/DashboardLayout.vue'),
+    children: [
+      { path: '', component: () => import('src/pages/CustomerPage.vue') },
+    ],
+    beforeEnter: async (to, from, next) =>
+    {
+      if (await IsAuthenticated()) next();
+      else next('/login');
+    }
+  },
   // {
   //   path: '/products',
   //   component: () => import('layouts/DashboardLayout.vue'),
