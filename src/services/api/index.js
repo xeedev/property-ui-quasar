@@ -31,7 +31,8 @@ const routes = {
         'logout' : 'logout',
         'general-query':'general-query',
         'order-now':'orders',
-        'users':'users'
+        'users':'users',
+        'locations':'locations',
     },
 };
 
