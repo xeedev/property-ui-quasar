@@ -30,7 +30,8 @@ const routes = {
         'image-upload' : 'imageUpload',
         'logout' : 'logout',
         'general-query':'general-query',
-        'order-now':'orders'
+        'order-now':'orders',
+        'users':'users'
     },
 };
 
