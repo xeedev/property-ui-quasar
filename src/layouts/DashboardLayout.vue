@@ -47,7 +47,7 @@
 
             <q-item-section>
               <q-item-label>{{essentialLink.title}}</q-item-label>
-              <q-item-label caption>{{essentialLink.caption}}</q-item-label>
+              <q-item-label caption class="text-yellow-7">{{essentialLink.caption}}</q-item-label>
             </q-item-section>
           </q-item>
         </template>
