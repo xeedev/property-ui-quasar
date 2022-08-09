@@ -33,6 +33,7 @@ const routes = {
         'order-now':'orders',
         'users':'users',
         'locations':'locations',
+        'properties':'properties',
     },
 };
 
