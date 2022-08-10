@@ -2,7 +2,7 @@
   "name": "property-ui-quasar",
   "version": "0.0.1",
   "description": "A Quasar Project",
-  "productName": "Quasar App",
+  "productName": "Pride Properties",
   "author": "xeemax <xeemax2.0@gmail.com>",
   "private": true,
   "scripts": {
@@ -13,6 +13,7 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "axios": "^0.27.2",
+    "browser-image-compression": "^2.0.0",
     "pinia": "^2.0.17",
     "quasar": "^2.6.0",
     "vue": "^3.0.0",
