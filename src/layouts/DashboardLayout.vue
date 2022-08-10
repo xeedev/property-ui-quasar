@@ -90,12 +90,12 @@ const linksList = [
     icon: 'category',
     link: 'societies',
   },
-  {
-    title: 'Media',
-    caption: 'Manage Gallery',
-    icon: 'image',
-    link: 'gallery',
-  },
+  // {
+  //   title: 'Media',
+  //   caption: 'Manage Gallery',
+  //   icon: 'image',
+  //   link: 'gallery',
+  // },
 ];
 
 export default defineComponent({
