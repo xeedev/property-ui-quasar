@@ -10,7 +10,7 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-card class="my-card bg-amber-5 cursor-pointer" @click="$router.push('orders')">
+      <q-card class="my-card bg-amber-5 cursor-pointer" @click="$router.push('deals')">
         <q-card-section class="q-ma-xl">
           <div class="row justify-center items-center text-white text-center">
             All Deals
@@ -19,7 +19,7 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-card class="my-card bg-red-5 cursor-pointer" @click="$router.push('orders')">
+      <q-card class="my-card bg-red-5 cursor-pointer" @click="$router.push('deals')">
         <q-card-section class="q-ma-xl">
           <div class="row justify-center items-center text-white text-center">
             Pending Deals
@@ -28,7 +28,7 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-card class="my-card bg-blue-5 cursor-pointer" @click="$router.push('orders')">
+      <q-card class="my-card bg-blue-5 cursor-pointer" @click="$router.push('deals')">
         <q-card-section class="q-ma-xl">
           <div class="row justify-center items-center text-white text-center">
             Today's Deals
@@ -37,7 +37,7 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-card class="my-card bg-dark cursor-pointer" @click="$router.push('products')">
+      <q-card class="my-card bg-dark cursor-pointer" @click="$router.push('societies')">
         <q-card-section class="q-ma-xl">
           <div class="row justify-center items-center text-white text-center">
             Total Societies
