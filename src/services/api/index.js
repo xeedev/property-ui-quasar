@@ -3,7 +3,6 @@ import http from '../http'
 const routes = {
     'ws': {
         'User': 'users',
-        'Location': 'locations',
         'Hotel': 'hotels',
         'Vendor': 'vendors',
         'Organization': 'organizations',

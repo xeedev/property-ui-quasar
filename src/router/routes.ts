@@ -4,6 +4,18 @@ import Api from 'src/services/api';
 const routes: RouteRecordRaw[] = [
 
   {
+    path: '/',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('src/pages/HomePage.vue') },
+    ]
+  },
+  {
+    path: '/property/:id',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('pages/DetailsPage.vue') }],
+  },
+  {
     path: '/login',
     component: () => import('layouts/MainLayout.vue'),
     children: [
@@ -11,7 +23,7 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/',
+    path: '/dashboard',
     component: () => import('layouts/DashboardLayout.vue'),
     children: [
       { path: '', component: () => import('src/pages/DashboardPage.vue') },
