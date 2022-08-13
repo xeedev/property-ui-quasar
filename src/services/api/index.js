@@ -33,6 +33,7 @@ const routes = {
         'users':'users',
         'locations':'locations',
         'properties':'properties',
+        'blocks':'blocks',
     },
 };
 
