@@ -28,6 +28,9 @@
           <q-td key="location" :props="props">
             {{ props.row.location?.name ?? 'N/A' }}
           </q-td>
+          <q-td key="block" :props="props">
+            {{ props.row.block?.name ?? 'N/A' }}
+          </q-td>
           <q-td key="seller" :props="props">
             {{ props.row.sold_by?.name ?? 'N/A' }}
           </q-td>
@@ -88,6 +91,9 @@
                   <q-select outlined v-model="location" :options="locations" :option-value="(locations) => locations === null ? null : locations.id" label="Select Location" :option-label="(locations) => locations === null ? null : locations.name"
                             :rules="[val => val !== null && val !== '' || 'Please select location']"
                   />
+                  <q-select outlined v-model="block" :options="blocks" :option-value="(blocks) => blocks === null ? null : blocks.id" label="Select Block" :option-label="(blocks) => blocks === null ? null : blocks.name"
+                            :rules="[val => val !== null && val !== '' || 'Please select block']"
+                  />
                   <q-select outlined v-model="seller" :options="users" :option-value="(users) => users === null ? null : users.id" label="Select Seller" :option-label="(users) => users === null ? null : users.name"
                             :rules="[val => val !== null && val !== '' || 'Please select Seller']"
                   />
@@ -100,6 +106,7 @@
                     hint="Detail"
                     type="textarea"
                   />
+                  <q-select outlined v-model="status" :options="statuses" :option-value="(statuses) => statuses === null ? null : statuses.name" label="Update Status" :option-label="(statuses) => statuses === null ? null : statuses.name"/>
                   <div>
                     <p class="text-dark q-mt-md"><strong>Upload Images *</strong></p>
                     <div class="text-dark q-gutter-md" style="font-size: 2em">
@@ -192,6 +199,14 @@ const columns = [
     sortable: true
   },
   {
+    name: 'block',
+    required: true,
+    label: 'Block',
+    align: 'left',
+    field: row => row.block.name,
+    sortable: true
+  },
+  {
     name: 'seller',
     required: true,
     label: 'Seller',
@@ -224,6 +239,16 @@ const originalRows = ref([])
 
 export default {
   setup () {
+    const statuses = ref([
+      {
+        name: 'available',
+      },
+      {
+        name: 'sold',
+      }
+    ])
+    const block = ref('')
+    const blocks = ref([])
     const uploadedImages = ref([])
     const users = ref([])
     const seller = ref('')
@@ -328,7 +353,9 @@ export default {
         location.value = propertyDetail?.value?.location?.id ? locations.value.find(obj => obj.id === propertyDetail.value.location.id) : '';
         seller.value = propertyDetail?.value?.sold_by?.id ? users.value.find(obj => obj.id === propertyDetail.value.sold_by.id) : '';
         buyer.value = propertyDetail?.value?.sold_to?.id ? users.value.find(obj => obj.id === propertyDetail.value.sold_to.id) : '';
+        block.value = propertyDetail?.value?.block?.id ? blocks.value.find(obj => obj.id === propertyDetail.value.block.id) : '';
         detail.value = res.data.data.detail;
+        status.value = propertyDetail?.value?.status ? statuses.value.find(obj => obj.name === propertyDetail.value.status) : '';
         propertyDetail.value.media.forEach(media =>{
           uploadedImages.value.push(media.url)
         })
@@ -345,8 +372,10 @@ export default {
       users.value = user.data.data
       let location = await Api.getList('locations');
       locations.value = location.data.data
+      let block = await Api.getList('blocks');
+      blocks.value = block.data.data
     })
-    async function save(id=null, status= null){
+    async function save(id=null){
       let res = null;
       if (action.value === 'Edit'){
         let payload = {
@@ -355,7 +384,8 @@ export default {
           sold_by_user_id: seller?.value?.id ?? null,
           sold_to_user_id: buyer?.value?.id ?? null,
           location_id: location?.value?.id ?? null,
-          status: status ? status : propertyDetail.value.status,
+          block_id: block?.value?.id ?? null,
+          status: status.value.name,
           uploadedImages : uploadedImages.value,
         }
         payload = Object.assign({'id': id ?? selectedProperty.value},payload)
@@ -367,7 +397,8 @@ export default {
           sold_by_user_id: seller?.value?.id ?? null,
           sold_to_user_id: buyer?.value?.id ?? null,
           location_id: location?.value?.id ?? null,
-          status: 'available',
+          block_id: block?.value?.id ?? null,
+          status: status.value.name ?? 'available',
           uploadedImages : uploadedImages.value,
         }
         res = await Api.post('properties',payload);
@@ -400,6 +431,7 @@ export default {
       location.value = null;
       seller.value = null;
       buyer.value = null;
+      status.value = '';
       detail.value = '';
       uploadedImages.value = [];
     }
@@ -484,6 +516,8 @@ export default {
       seller,
       buyer,
       location,
+      block,
+      blocks,
       property_number,
       detail,
       users,
@@ -497,6 +531,7 @@ export default {
       rows,
       dialog,
       status,
+      statuses,
       deleteLoading,
       selectedProperty,
       propertyDetail,
