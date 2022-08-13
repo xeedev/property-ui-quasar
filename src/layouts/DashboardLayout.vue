@@ -90,6 +90,12 @@ const linksList = [
     icon: 'category',
     link: 'societies',
   },
+  {
+    title: 'Blocks',
+    caption: 'Manage Blocks',
+    icon: 'sort_by_alpha',
+    link: 'blocks',
+  },
   // {
   //   title: 'Media',
   //   caption: 'Manage Gallery',
