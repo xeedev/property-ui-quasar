@@ -31,6 +31,12 @@
           <q-td key="block" :props="props">
             {{ props.row.block?.name ?? 'N/A' }}
           </q-td>
+          <q-td key="demand" :props="props">
+            {{ props.row.demand ?? 'N/A' }}
+          </q-td>
+          <q-td key="negotiated_price" :props="props">
+            {{ props.row.negotiated_price ?? 'N/A' }}
+          </q-td>
           <q-td key="seller" :props="props">
             {{ props.row.sold_by?.name ?? 'N/A' }}
           </q-td>
@@ -101,12 +107,42 @@
 
                   <q-input
                     outlined
-                    v-model="detail"
-                    label="Detail"
-                    hint="Detail"
-                    type="textarea"
+                    v-model="demand"
+                    label="Demand"
+                    type="number"
+                  />
+
+                  <q-input
+                    outlined
+                    v-model="negotiated_price"
+                    label="Negotiated Price"
+                    type="number"
                   />
                   <q-select outlined v-model="status" :options="statuses" :option-value="(statuses) => statuses === null ? null : statuses.name" label="Update Status" :option-label="(statuses) => statuses === null ? null : statuses.name"/>
+                  <q-input
+                    v-if="status.name === 'sold'"
+                    type="number"
+                    outlined
+                    v-model="sold_in"
+                    label="Sold In"
+                    lazy-rules
+                    :rules="[ val => val && val.length > 0 || 'For how much did you sell?']"
+                  />
+                  <q-input
+                    v-if="status.name === 'sold'"
+                    type="number"
+                    outlined
+                    v-model="commission_received"
+                    label="Commission Received"
+                    lazy-rules
+                    :rules="[ val => val && val.length > 0 || 'Commission Received']"
+                  />
+                  <q-input
+                    outlined
+                    v-model="detail"
+                    label="Notes"
+                    type="textarea"
+                  />
                   <div>
                     <p class="text-dark q-mt-md"><strong>Upload Images *</strong></p>
                     <div class="text-dark q-gutter-md" style="font-size: 2em">
@@ -178,7 +214,7 @@ import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import Api from '../services/api';
 import axios from 'axios';
-import imageCompression from "browser-image-compression";
+import imageCompression from 'browser-image-compression';
 
 
 const columns = [
@@ -204,6 +240,22 @@ const columns = [
     label: 'Block',
     align: 'left',
     field: row => row.block.name,
+    sortable: true
+  },
+  {
+    name: 'demand',
+    required: true,
+    label: 'Demand',
+    align: 'right',
+    field: row => row.demand,
+    sortable: true
+  },
+  {
+    name: 'negotiated_price',
+    required: true,
+    label: 'Negotiated Price',
+    align: 'right',
+    field: row => row.negotiated_price,
     sortable: true
   },
   {
@@ -247,6 +299,10 @@ export default {
         name: 'sold',
       }
     ])
+    const commission_received = ref(0)
+    const sold_in = ref(0)
+    const negotiated_price = ref('')
+    const demand = ref('')
     const block = ref('')
     const blocks = ref([])
     const uploadedImages = ref([])
@@ -350,6 +406,8 @@ export default {
         let res = await Api.getOne('properties', {id});
         propertyDetail.value = res.data.data;
         property_number.value = res.data.data.property_number;
+        demand.value = res.data.data.demand;
+        negotiated_price.value = res.data.data.negotiated_price;
         location.value = propertyDetail?.value?.location?.id ? locations.value.find(obj => obj.id === propertyDetail.value.location.id) : '';
         seller.value = propertyDetail?.value?.sold_by?.id ? users.value.find(obj => obj.id === propertyDetail.value.sold_by.id) : '';
         buyer.value = propertyDetail?.value?.sold_to?.id ? users.value.find(obj => obj.id === propertyDetail.value.sold_to.id) : '';
@@ -380,12 +438,16 @@ export default {
       if (action.value === 'Edit'){
         let payload = {
           property_number: property_number.value,
+          demand: demand.value ?? null,
+          negotiated_price: negotiated_price.value ?? null,
           detail: detail.value,
           sold_by_user_id: seller?.value?.id ?? null,
           sold_to_user_id: buyer?.value?.id ?? null,
           location_id: location?.value?.id ?? null,
           block_id: block?.value?.id ?? null,
           status: status.value.name,
+          commission_received: commission_received.value ?? 0,
+          sold_in: sold_in.value ?? 0,
           uploadedImages : uploadedImages.value,
         }
         payload = Object.assign({'id': id ?? selectedProperty.value},payload)
@@ -393,12 +455,16 @@ export default {
       }else{
         let payload = {
           property_number: property_number.value,
+          demand: demand.value ?? null,
+          negotiated_price: negotiated_price.value ?? null,
           detail: detail.value,
           sold_by_user_id: seller?.value?.id ?? null,
           sold_to_user_id: buyer?.value?.id ?? null,
           location_id: location?.value?.id ?? null,
           block_id: block?.value?.id ?? null,
           status: status.value.name ?? 'available',
+          commission_received: commission_received.value ?? 0,
+          sold_in: sold_in.value ?? 0,
           uploadedImages : uploadedImages.value,
         }
         res = await Api.post('properties',payload);
@@ -433,6 +499,8 @@ export default {
       buyer.value = null;
       status.value = '';
       detail.value = '';
+      demand.value = '';
+      negotiated_price.value = '';
       uploadedImages.value = [];
     }
     async function deleteOrder(id){
@@ -477,7 +545,6 @@ export default {
       for (let i = 0; i < files.length; i++) {
         let file = files[i];
         file = await compressFile(file);
-        console.log(file);
         formData.append('files[]', file);
       }
 
@@ -536,6 +603,10 @@ export default {
       selectedProperty,
       propertyDetail,
       uploadedImages,
+      negotiated_price,
+      demand,
+      commission_received,
+      sold_in,
       removeUrl,
       compressFile,
       onFilesPicked,
