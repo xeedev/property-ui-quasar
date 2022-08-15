@@ -30,7 +30,7 @@
       <q-list>
         <q-item-label header>
           <q-img
-            src="download.jfif"
+            src="/download.jfif"
             spinner-color="white"
             @click="$router.push('/dashboard')"
             fit="contain"
@@ -67,34 +67,40 @@ import { useRouter } from 'vue-router'
 // import EssentialLink from 'components/EssentialLink.vue';
 const linksList = [
   {
+    title: 'Home',
+    caption: 'View Deals',
+    icon: 'home',
+    link: '/',
+  },
+  {
     title: 'Dashboard',
     caption: 'Statistics',
     icon: 'dashboard',
-    link: '/',
+    link: '/dashboard',
   },
   {
     title: 'Customers',
     caption: 'Manage Customers',
     icon: 'account_circle',
-    link: 'customers',
+    link: '/customers',
   },
   {
     title: 'Deals',
     caption: 'Track Deals',
     icon: 'trending_up',
-    link: 'deals',
+    link: '/deals',
   },
   {
     title: 'Societies',
     caption: 'Manage Societies',
     icon: 'category',
-    link: 'societies',
+    link: '/societies',
   },
   {
     title: 'Blocks',
     caption: 'Manage Blocks',
     icon: 'sort_by_alpha',
-    link: 'blocks',
+    link: '/blocks',
   },
   // {
   //   title: 'Media',
@@ -118,7 +124,7 @@ export default defineComponent({
       await Api.post('logout');
       localStorage.removeItem('token')
       localStorage.removeItem('token_check')
-      router.push({path:'login'})
+      router.push({path:'/login'})
     }
 
     return {
