@@ -5,7 +5,7 @@ const routes: RouteRecordRaw[] = [
 
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('layouts/DashboardLayout.vue'),
     children: [
       { path: '', component: () => import('src/pages/HomePage.vue') },
     ],
@@ -17,8 +17,13 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/property/:id',
-    component: () => import('layouts/MainLayout.vue'),
+    component: () => import('layouts/DashboardLayout.vue'),
     children: [{ path: '', component: () => import('pages/DetailsPage.vue') }],
+    beforeEnter: async (to, from, next) =>
+    {
+      if (await IsAuthenticated()) next();
+      else next('/login');
+    }
   },
   {
     path: '/login',
