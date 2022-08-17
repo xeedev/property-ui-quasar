@@ -132,7 +132,6 @@ export default {
     const dialog = ref(false);
     const blocks = ref([]);
     const block = ref('');
-    const uploadedImages = ref([])
     function fetchFromServer (startRow, count, filter, sortBy, descending) {
       const data = filter
         ? originalRows.value.filter(row => row.name.includes(filter))
@@ -274,7 +273,6 @@ export default {
       price,
       blocks,
       block,
-      uploadedImages,
       deleteLoading,
       selectedBlock,
       onRequest,
