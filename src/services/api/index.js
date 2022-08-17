@@ -34,6 +34,7 @@ const routes = {
         'locations':'locations',
         'properties':'properties',
         'blocks':'blocks',
+        'leads':'leads',
     },
 };
 
