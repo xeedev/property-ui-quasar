@@ -49,6 +49,9 @@
             </q-badge>
           </q-td>
           <q-td auto-width>
+            <q-btn size="sm" color="grey-7" round dense icon="visibility" @click="$router.push('/property/' + props.row.id)" />
+          </q-td>
+          <q-td auto-width>
             <q-btn size="sm" color="yellow-7" round dense icon="edit_square" @click="submit('Edit',props.row.id)" />
           </q-td>
           <q-td auto-width>
@@ -333,8 +336,16 @@ export default {
     })
     const dialog = ref(false);
     function fetchFromServer (startRow, count, filter, sortBy, descending) {
+      let l_filter = filter?.toLowerCase()
       const data = filter
-        ? originalRows.value.filter(row => row.property_number.includes(filter))
+        ? originalRows.value.filter(row => {
+          return row.property_number.toLowerCase().includes(l_filter)
+            || row.location.name.toLowerCase().includes(l_filter)
+            || row.block.name.toLowerCase().includes(l_filter)
+            || row.status.toLowerCase().includes(l_filter)
+            || row.sold_by.name.toLowerCase().includes(l_filter)
+            || row.sold_to?.name.toLowerCase().includes(l_filter)
+        })
         : originalRows.value.slice()
 
       // handle sortBy
@@ -520,13 +531,13 @@ export default {
     }
     const compressFile = (imageFile) => {
       let size = imageFile.size / 1024 / 1024; // in MiB
-      if (size < 0.2) {
+      if (size < 0.3) {
         return imageFile;
       }
 
       return new Promise((resolve, reject) => {
         let options = {
-          maxSizeMB: 0.25,
+          maxSizeMB: 0.35,
           maxWidthOrHeight: 1920,
           useWebWorker: true
         };
