@@ -102,6 +102,12 @@ const linksList = [
     icon: 'sort_by_alpha',
     link: '/blocks',
   },
+  {
+    title: 'Maps',
+    caption: 'Manage Maps',
+    icon: 'maps',
+    link: '/maps',
+  },
   // {
   //   title: 'Media',
   //   caption: 'Manage Gallery',
