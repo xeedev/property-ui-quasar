@@ -71,17 +71,11 @@
               lazy-rules
               :rules="[ val => val && val.length > 0 || 'Please add Map Name']"
             />
-            <q-input
-              outlined
-              v-model="type"
-              label="Map Type *"
-              lazy-rules
-              :rules="[ val => val && val.length > 0 && (val === 'pdf' || val === 'image') || 'Please add pdf or image']"
-            />
+            <q-select outlined v-model="type" :options="types" :option-value="(types) => types === null ? null : types.name" label="Update Status" :option-label="(types) => types === null ? null : types.name"/>
             <div class="row q-gutter-md">
               <q-card class="my-card cursor-pointer" @click="$refs.image.click()">
                 <q-card-section class="q-ma-none q-pa-none section">
-                  <q-icon name="perm_mediac" class="text-dark" size="xl" />
+                  <q-icon name="perm_media" class="text-dark" size="xl" />
                 </q-card-section>
               </q-card>
               <input
@@ -91,13 +85,20 @@
                 accept="image/*"
                 @change="uploadFile"
               />
-                <q-card v-if="!!uploadedImage" class="my-card" :style="
+                <q-card v-if="!!uploadedImage && type.name !== 'pdf'" class="my-card" :style="
                 'background-image: url(' +
                 uploadedImage +
                 '); background-size: cover'
               ">
                   <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="uploadedImage = ''"></q-icon>
                 </q-card>
+              <q-card v-if="!!uploadedImage && type.name === 'pdf'" class="my-card" :style="
+                'background-image: url(' +
+                pdf +
+                '); background-size: cover'
+              ">
+                <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="uploadedImage = ''"></q-icon>
+              </q-card>
             </div>
             <div>
               <q-btn :label="action === 'Edit' ? 'Update Map' : 'Add Map'" type="submit" color="yellow-7"/>
@@ -134,6 +135,15 @@ const originalRows = ref([])
 
 export default {
   setup () {
+    const types = ref([
+      {
+        name: 'pdf',
+      },
+      {
+        name: 'image',
+      }
+    ])
+    const pdf = ref('/images')
     const uploadedImage = ref(null)
     const deleteLoading = ref({})
     const $q = useQuasar()
@@ -220,9 +230,9 @@ export default {
       if (val === 'Edit'){
         selectedMap.value = id
         let res = await Api.getOne('maps', {id});
-        let block = res.data.data;
-        name.value = block.name
-        type.value = block.type
+        let maps = res.data.data;
+        name.value = maps.name
+        type.value = maps?.status ? types.value.find(obj => obj.name === maps.status) : '';
       }
       dialog.value = true
     }
@@ -265,9 +275,11 @@ export default {
     async function save(action){
       let payload = {
         'name' : name.value,
-        'type' : type.value,
+        'type' : type.value.name,
         'url' : uploadedImage.value
       }
+      console.log('payload is', payload);
+      return false;
       let res = null;
       if (action === 'Add'){
         res = await Api.post('maps',payload);
@@ -330,6 +342,7 @@ export default {
       block,
       deleteLoading,
       selectedMap,
+      types,
       onFilesPicked,
       uploadFile,
       onRequest,
