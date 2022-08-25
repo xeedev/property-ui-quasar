@@ -1,44 +1,41 @@
 <template>
   <div class="q-pa-md">
-    <q-table
-      title="Treats"
-      :rows="rows"
-      :columns="columns"
-      row-key="id"
-      v-model:pagination="pagination"
-      :loading="loading"
-      :filter="filter"
-      @request="onRequest"
-      binary-state-sort
-    >
-      <template v-slot:top>
-        <q-btn color="yellow-7" icon="add" :disable="loading" :label="$q.screen.xs || $q.screen.sm ? '' : 'Add Map'" @click="submit('Add')" />
-        <q-space />
-        <q-input outlined dense debounce="300" v-model="filter" placeholder="Search">
-          <template v-slot:append>
-            <q-icon name="search" />
+    <q-card>
+      <q-card-section>
+        <div class="row">
+          <q-btn label="Add Map" @click="dialog=true"  color="yellow-7"/>
+          <q-space/>
+          <q-input
+            dense
+            outlined
+            v-model="search"
+            label="Search"
+            v-on:change=searchResult
+            clearable
+          />
+        </div>
+      </q-card-section>
+      <q-card-section>
+        <div class="row justify-center flex text-center">
+          <template v-for="(row,index) in originalRows" :key="index">
+            <div class="col col-lg-2 col-md-6">
+              <q-card class="my-card" v-if=" row.type!== 'pdf'" :style="
+                'background-image: url(' +
+                row.url +
+                '); background-size: cover'
+              ">
+                <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
+              </q-card>
+              <q-card class="my-card" v-else :style="
+                'background-image: url(/pdf.png); background-size: cover'
+              ">
+                <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
+              </q-card>
+            </div>
           </template>
-        </q-input>
-      </template>
-      <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-          >
-            {{ col.value }}
-          </q-td>
-          <q-td auto-width>
-            <q-btn size="sm" color="yellow-7" round dense icon="edit" @click="submit('Edit',props.row.id)" />
-          </q-td>
-          <q-td auto-width>
-            <q-btn size="sm" color="red" :key="props.row.id" :loading="deleteLoading[`deleteLoading-${props.row.id}`]" round dense icon="delete" @click="deleteMap(props.row.id)" />
-          </q-td>
-        </q-tr>
-      </template>
-
-    </q-table>
+        </div>
+      </q-card-section>
+    </q-card>
 
     <q-dialog
       v-model="dialog"
@@ -82,20 +79,17 @@
                 style="display: none"
                 type="file"
                 ref="image"
-                accept="image/*"
                 @change="uploadFile"
               />
-                <q-card v-if="!!uploadedImage && type.name !== 'pdf'" class="my-card" :style="
+                <q-card v-if="!!uploadedImage && type?.name !== 'pdf'" class="my-card" :style="
                 'background-image: url(' +
                 uploadedImage +
                 '); background-size: cover'
               ">
                   <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="uploadedImage = ''"></q-icon>
                 </q-card>
-              <q-card v-if="!!uploadedImage && type.name === 'pdf'" class="my-card" :style="
-                'background-image: url(' +
-                pdf +
-                '); background-size: cover'
+              <q-card v-if="!!uploadedImage && type?.name === 'pdf'" class="my-card" :style="
+                'background-image: url(/pdf.png); background-size: cover'
               ">
                 <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="uploadedImage = ''"></q-icon>
               </q-card>
@@ -116,23 +110,6 @@ import { useQuasar } from 'quasar'
 import Api from '../services/api';
 import axios from 'axios';
 
-
-const columns = [
-
-  {
-    name: 'name',
-    required: true,
-    label: 'Name',
-    align: 'left',
-    field: row => row.name,
-    format: val => `${val}`,
-    sortable: true
-  },
-  { name: 'type', align: 'left', label: 'Type', field: 'type', sortable: true, format: val => val ? val.substring(0,100) : 'N/A'},
-]
-
-const originalRows = ref([])
-
 export default {
   setup () {
     const types = ref([
@@ -143,7 +120,9 @@ export default {
         name: 'image',
       }
     ])
-    const pdf = ref('/images')
+    const originalRows = ref([])
+    const search = ref('')
+    const pdf = ref('/pdf')
     const uploadedImage = ref(null)
     const deleteLoading = ref({})
     const $q = useQuasar()
@@ -161,70 +140,17 @@ export default {
       rowsPerPage: 10,
       rowsNumber: 10
     })
-    const action = ref('');
+    const action = ref('Add');
     const dialog = ref(false);
-    const blocks = ref([]);
+    const maps = ref([]);
     const block = ref('');
-    function fetchFromServer (startRow, count, filter, sortBy, descending) {
-      const data = filter
-        ? originalRows.value.filter(row => row.name.includes(filter))
-        : originalRows.value.slice()
-
-      // handle sortBy
-      if (sortBy) {
-        const sortFn = sortBy === 'desc'
-          ? (descending
-              ? (a, b) => (a.name > b.name ? -1 : a.name < b.name ? 1 : 0)
-              : (a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0)
-          )
-          : (descending
-              ? (a, b) => (parseFloat(b[ sortBy ]) - parseFloat(a[ sortBy ]))
-              : (a, b) => (parseFloat(a[ sortBy ]) - parseFloat(b[ sortBy ]))
-          )
-        data.sort(sortFn)
-      }
-
-      return data.slice(startRow, startRow + count)
+    async function searchResult(){
+      let maps = await Api.getList('maps',{
+        'key': ['name','type'],
+        'search' : search.value
+      });
+      originalRows.value = maps.data.data;
     }
-
-    function getRowsNumberCount (filter) {
-      if (!filter) {
-        return originalRows.value.length
-      }
-      let count = 0
-      originalRows.value.forEach(row => {
-        if (row.name.includes(filter)) {
-          ++count
-        }
-      })
-      return count
-    }
-
-    async function onRequest (props) {
-      loading.value = true
-      let blocks = await Api.getList('maps');
-      originalRows.value = blocks.data.data;
-      const { page, rowsPerPage, sortBy, descending } = props.pagination
-      const filter = props.filter
-      // update rowsCount with appropriate value
-      pagination.value.rowsNumber = await getRowsNumberCount(filter)
-      // get all rows if "All" (0) is selected
-      const fetchCount = rowsPerPage === 0 ? pagination.value.rowsNumber : rowsPerPage
-      // calculate starting row of data
-      const startRow = (page - 1) * rowsPerPage
-      // fetch data from "server"
-      const returnedData = fetchFromServer(startRow, fetchCount, filter, sortBy, descending)
-      // clear out existing data and add new
-      rows.value.splice(0, rows.value.length, ...returnedData)
-      // don't forget to update local pagination object
-      pagination.value.page = page
-      pagination.value.rowsPerPage = rowsPerPage
-      pagination.value.sortBy = sortBy
-      pagination.value.descending = descending
-      // ...and turn of loading indicator
-      loading.value = false
-    }
-
     async function submit(val,id = null){
       action.value = val;
       if (val === 'Edit'){
@@ -232,15 +158,17 @@ export default {
         let res = await Api.getOne('maps', {id});
         let maps = res.data.data;
         name.value = maps.name
-        type.value = maps?.status ? types.value.find(obj => obj.name === maps.status) : '';
+        uploadedImage.value = maps?.url
+        type.value = maps?.type ? types.value.find(obj => obj.name === maps.type) : '';
       }
       dialog.value = true
     }
     onMounted(async () => {
-      onRequest({
-        pagination: pagination.value,
-        filter: undefined
-      })
+      let maps = await Api.getList('maps',{
+        'key': ['name','type'],
+        'search' : search.value
+      });
+      originalRows.value = maps.data.data;
     })
     function uploadFile(event) {
       this.onFilesPicked(event);
@@ -278,8 +206,6 @@ export default {
         'type' : type.value.name,
         'url' : uploadedImage.value
       }
-      console.log('payload is', payload);
-      return false;
       let res = null;
       if (action === 'Add'){
         res = await Api.post('maps',payload);
@@ -294,10 +220,6 @@ export default {
           icon: 'cloud_done',
           message: 'Success',
         });
-        onRequest({
-          pagination: pagination.value,
-          filter: filter.value
-        })
         reset()
         dialog.value = false
       }else{
@@ -312,6 +234,7 @@ export default {
     function reset(){
       name.value = null
       type.value = null
+      uploadedImage.value = null
     }
     async function deleteMap(id){
       deleteLoading.value[`deleteLoading-${id}`] =  true
@@ -319,36 +242,34 @@ export default {
       if (res.data.success){
         rows.value.splice(id, 1);
       }
-      onRequest({
-        pagination: pagination.value,
-        filter: filter.value
-      })
       deleteLoading.value[`deleteLoading-${id}`] =  false
     }
 
     return {
+      originalRows,
       uploadedImage,
       filter,
       loading,
       pagination,
-      columns,
       rows,
       action,
       dialog,
       name,
       type,
       price,
-      blocks,
+      maps,
       block,
       deleteLoading,
       selectedMap,
       types,
+      pdf,
+      search,
       onFilesPicked,
       uploadFile,
-      onRequest,
       submit,
       save,
       reset,
+      searchResult,
       deleteMap
     }
   }
