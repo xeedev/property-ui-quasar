@@ -16,29 +16,36 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="row justify-center flex text-center">
+        <div class="row justify-center flex text-center" v-if="originalRows.length">
           <template v-for="(row,index) in originalRows" :key="index">
             <div class="col col-lg-2 col-md-6">
               <template v-if="row.type!== 'pdf'">
-                <q-card class="my-card" :style="
+                <q-card @click="showMultiple($event,index)" class="my-card" :style="
                 'background-image: url(' +
                 row.url +
-                '); background-size: cover'
+                '); background-size: cover;'
               ">
-                  <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
+                  <q-icon name="edit" class="absolute edit bg-green-10 text-white border-radius-inherit cursor-pointer" @click="submit('Edit', row.id)"></q-icon>
+                  <q-icon name="close" class="absolute close bg-red-10 text-white border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
                 </q-card>
                 <span class="row q-ml-md q-mt-sm">{{row.name}}</span>
               </template>
               <template v-else>
-                <q-card class="my-card" :style="
+                <a :href="row.url" target= '_blank'>
+                  <q-card class="my-card" :style="
                 'background-image: url(/pdf.png); background-size: cover'
               ">
-                  <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
-                </q-card>
+                    <q-icon name="edit" class="absolute edit bg-green-10 text-white border-radius-inherit cursor-pointer" @click="submit('Edit', row.id)"></q-icon>
+                    <q-icon name="close" class="absolute close bg-red-10 text-white border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
+                  </q-card>
+                </a>
                 <span class="row q-ml-md q-mt-sm">{{row.name}}</span>
               </template>
             </div>
           </template>
+        </div>
+        <div class="row justify-center flex text-center" v-else>
+          <p>No Maps Found</p>
         </div>
       </q-card-section>
       <q-card-actions>
@@ -49,6 +56,15 @@
         </template>
       </q-card-actions>
     </q-card>
+
+    <vue-easy-lightbox
+      escDisabled
+      moveDisabled
+      :visible="visible"
+      :imgs="imgs"
+      :index="index"
+      @hide="visible = false"
+    ></vue-easy-lightbox>
 
     <q-dialog
       v-model="dialog"
@@ -81,7 +97,7 @@
               lazy-rules
               :rules="[ val => val && val.length > 0 || 'Please add Map Name']"
             />
-            <q-select outlined v-model="type" :options="types" :option-value="(types) => types === null ? null : types.name" label="Update Status" :option-label="(types) => types === null ? null : types.name"/>
+            <q-select outlined v-model="type" :options="types" :option-value="(types) => types === null ? null : types.name" label="Select Type" :option-label="(types) => types === null ? null : types.name"/>
             <div class="row q-gutter-md">
               <q-card class="my-card cursor-pointer" @click="$refs.image.click()">
                 <q-card-section class="q-ma-none q-pa-none section">
@@ -122,8 +138,13 @@ import { ref, onMounted, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import Api from '../services/api';
 import axios from 'axios';
+import VueEasyLightbox from 'vue-easy-lightbox'
+
 
 export default {
+  components: {
+    VueEasyLightbox
+  },
   setup () {
     const types = ref([
       {
@@ -133,12 +154,14 @@ export default {
         name: 'image',
       }
     ])
+    const imgs = ref([]);
+    const visible =  ref(false);
+    const index =  ref(0)
     const page = ref(1)
     const originalRows = ref([])
     const search = ref('')
     const pdf = ref('/pdf')
     const uploadedImage = ref(null)
-    const deleteLoading = ref({})
     const $q = useQuasar()
     const selectedMap = ref('')
     const name = ref('')
@@ -226,6 +249,7 @@ export default {
         });
         reset()
         dialog.value = false
+        onRequest()
       }else{
         $q.notify({
           color: 'red-4',
@@ -242,6 +266,10 @@ export default {
         'page' : page.value
       });
       originalRows.value = maps.data.data;
+      imgs.value = []
+      originalRows.value.forEach(r => {
+        imgs.value.push(r.url)
+      })
       meta.value = maps.data.meta
     }
     function reset(){
@@ -250,12 +278,11 @@ export default {
       uploadedImage.value = null
     }
     async function deleteMap(id){
-      deleteLoading.value[`deleteLoading-${id}`] =  true
       let res = await Api.delete('maps',{id})
       if (res.data.success){
         rows.value.splice(id, 1);
       }
-      deleteLoading.value[`deleteLoading-${id}`] =  false
+      onRequest()
     }
     function requestNewPage(btn) {
       if (btn.label.includes('Previous')){
@@ -266,6 +293,12 @@ export default {
         page.value = parseInt(btn.label)
       }
       onRequest()
+    }
+    function showMultiple(e='',i) {
+      if (e.target.tagName !== 'I'){
+        index.value = i
+        visible.value = true
+      }
     }
     watch(search, (value) => {
       page.value = 1
@@ -286,13 +319,16 @@ export default {
       price,
       maps,
       block,
-      deleteLoading,
       selectedMap,
       types,
       pdf,
       search,
       meta,
       page,
+      imgs,
+      visible,
+      index,
+      showMultiple,
       requestNewPage,
       onRequest,
       onFilesPicked,
@@ -307,6 +343,7 @@ export default {
 </script>
 <style lang="sass" scoped>
 .my-card
+  cursor: pointer
   width: 100px
   height: 100px
   border-radius: 10px
@@ -318,5 +355,9 @@ export default {
   justify-content: center
   align-items: center
 .close
-  right: 0
+  top: 2px
+  right: 1px
+.edit
+  top: 2px
+  left: 1px
 </style>
