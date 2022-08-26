@@ -3,14 +3,14 @@
     <q-card>
       <q-card-section>
         <div class="row">
-          <q-btn label="Add Map" @click="dialog=true"  color="yellow-7"/>
+          <q-btn color="yellow-7" icon="add" :label="$q.screen.xs || $q.screen.sm ? '' : 'Add Map'" @click="dialog=true" />
           <q-space/>
           <q-input
             dense
             outlined
             v-model="search"
             label="Search"
-            v-on:change=searchResult
+            v-on:change=onRequest
             clearable
           />
         </div>
@@ -19,22 +19,35 @@
         <div class="row justify-center flex text-center">
           <template v-for="(row,index) in originalRows" :key="index">
             <div class="col col-lg-2 col-md-6">
-              <q-card class="my-card" v-if=" row.type!== 'pdf'" :style="
+              <template v-if="row.type!== 'pdf'">
+                <q-card class="my-card" :style="
                 'background-image: url(' +
                 row.url +
                 '); background-size: cover'
               ">
-                <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
-              </q-card>
-              <q-card class="my-card" v-else :style="
+                  <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
+                </q-card>
+                <span class="row q-ml-md q-mt-sm">{{row.name}}</span>
+              </template>
+              <template v-else>
+                <q-card class="my-card" :style="
                 'background-image: url(/pdf.png); background-size: cover'
               ">
-                <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
-              </q-card>
+                  <q-icon name="close" class="absolute close bg-red-5 border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
+                </q-card>
+                <span class="row q-ml-md q-mt-sm">{{row.name}}</span>
+              </template>
             </div>
           </template>
         </div>
       </q-card-section>
+      <q-card-actions>
+        <template v-for="(button, index) in meta?.links" :key="index">
+          <q-btn color="yellow-7" @click="requestNewPage(button)" :disable="button.url === null" >
+            <span v-html="button.label"></span>
+          </q-btn>
+        </template>
+      </q-card-actions>
     </q-card>
 
     <q-dialog
@@ -105,7 +118,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import Api from '../services/api';
 import axios from 'axios';
@@ -120,6 +133,7 @@ export default {
         name: 'image',
       }
     ])
+    const page = ref(1)
     const originalRows = ref([])
     const search = ref('')
     const pdf = ref('/pdf')
@@ -144,13 +158,7 @@ export default {
     const dialog = ref(false);
     const maps = ref([]);
     const block = ref('');
-    async function searchResult(){
-      let maps = await Api.getList('maps',{
-        'key': ['name','type'],
-        'search' : search.value
-      });
-      originalRows.value = maps.data.data;
-    }
+    const meta = ref({})
     async function submit(val,id = null){
       action.value = val;
       if (val === 'Edit'){
@@ -163,12 +171,8 @@ export default {
       }
       dialog.value = true
     }
-    onMounted(async () => {
-      let maps = await Api.getList('maps',{
-        'key': ['name','type'],
-        'search' : search.value
-      });
-      originalRows.value = maps.data.data;
+    onMounted( () => {
+      onRequest()
     })
     function uploadFile(event) {
       this.onFilesPicked(event);
@@ -231,6 +235,15 @@ export default {
         });
       }
     }
+    async function onRequest(){
+      let maps = await Api.getList('maps',{
+        'key': ['name','type'],
+        'search' : search.value,
+        'page' : page.value
+      });
+      originalRows.value = maps.data.data;
+      meta.value = maps.data.meta
+    }
     function reset(){
       name.value = null
       type.value = null
@@ -244,6 +257,20 @@ export default {
       }
       deleteLoading.value[`deleteLoading-${id}`] =  false
     }
+    function requestNewPage(btn) {
+      if (btn.label.includes('Previous')){
+        page.value--;
+      }else if( btn.label.includes('Next')){
+        page.value++;
+      }else{
+        page.value = parseInt(btn.label)
+      }
+      onRequest()
+    }
+    watch(search, (value) => {
+      page.value = 1
+      onRequest()
+    });
 
     return {
       originalRows,
@@ -264,12 +291,15 @@ export default {
       types,
       pdf,
       search,
+      meta,
+      page,
+      requestNewPage,
+      onRequest,
       onFilesPicked,
       uploadFile,
       submit,
       save,
       reset,
-      searchResult,
       deleteMap
     }
   }
