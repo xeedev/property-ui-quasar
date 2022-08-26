@@ -6,7 +6,7 @@
       :flat="$q.screen.sm || $q.screen.xs"
     >
       <q-img
-        src="download.jfif"
+        src="/icon.png"
         spinner-color="white"
         @click="$router.push('/')"
         fit="contain"
@@ -61,7 +61,7 @@ import { ref, onMounted } from 'vue';
 export default {
   setup() {
     onMounted(async () => {
-       await Api.getList( 'validateToken').then((response) => {
+       await Api.getList( 'validateToken').then(() => {
          router.push('/');
       });
     })
