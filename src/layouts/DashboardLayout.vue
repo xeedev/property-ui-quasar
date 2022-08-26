@@ -30,7 +30,7 @@
       <q-list>
         <q-item-label header>
           <q-img
-            src="/download.jfif"
+            src="/icon.png"
             spinner-color="white"
             @click="$router.push('/dashboard')"
             fit="contain"

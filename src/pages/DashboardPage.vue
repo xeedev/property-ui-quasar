@@ -61,7 +61,7 @@
 
 <script lang="ts">
 import { Todo, Meta } from 'components/models';
-import Api from "src/services/api";
+import Api from 'src/services/api';
 import { defineComponent, ref, onMounted } from 'vue';
 
 export default defineComponent({
