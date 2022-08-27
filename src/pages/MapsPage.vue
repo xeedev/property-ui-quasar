@@ -3,7 +3,7 @@
     <q-card>
       <q-card-section>
         <div class="row">
-          <q-btn color="yellow-7" icon="add" :label="$q.screen.xs || $q.screen.sm ? '' : 'Add Map'" @click="dialog=true" />
+          <q-btn color="yellow-7" icon="add" :label="$q.screen.xs || $q.screen.sm ? '' : 'Add Map'" @click="submit('Add')" />
           <q-space/>
           <q-input
             dense
@@ -16,9 +16,9 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <div class="row justify-center flex text-center" v-if="originalRows.length">
+        <div class="row q-gutter-md justify-center flex text-center" v-if="originalRows.length">
           <template v-for="(row,index) in originalRows" :key="index">
-            <div class="col col-lg-2 col-md-6">
+            <div class="col col-lg-2 col-md-6 table">
               <template v-if="row.type!== 'pdf'">
                 <q-card @click="showMultiple($event,index)" class="my-card" :style="
                 'background-image: url(' +
@@ -28,7 +28,7 @@
                   <q-icon name="edit" class="absolute edit bg-green-10 text-white border-radius-inherit cursor-pointer" @click="submit('Edit', row.id)"></q-icon>
                   <q-icon name="close" class="absolute close bg-red-10 text-white border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
                 </q-card>
-                <span class="row q-ml-md q-mt-sm">{{row.name}}</span>
+                <span class="text-center">{{row.name}}</span>
               </template>
               <template v-else>
                 <a :href="row.url" target= '_blank'>
@@ -39,7 +39,7 @@
                     <q-icon name="close" class="absolute close bg-red-10 text-white border-radius-inherit cursor-pointer" @click="deleteMap(row.id)"></q-icon>
                   </q-card>
                 </a>
-                <span class="row q-ml-md q-mt-sm">{{row.name}}</span>
+                <span class="text-center">{{row.name}}</span>
               </template>
             </div>
           </template>
@@ -350,6 +350,7 @@ export default {
   border: 1px dashed black
   display: flex
   justify-content: center
+  margin: 0 auto
 .section
   display: flex
   justify-content: center
@@ -360,4 +361,6 @@ export default {
 .edit
   top: 2px
   left: 1px
+.table
+  display: table
 </style>
