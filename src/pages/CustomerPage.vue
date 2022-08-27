@@ -48,7 +48,7 @@
       transition-hide="slide-down"
     >
       <q-card class="text-white">
-        <q-bar>
+        <q-bar class="bg-green-7">
           <q-space />
           <q-btn dense flat icon="close" v-close-popup @click="reset">
             <q-tooltip class="bg-white text-primary">Close</q-tooltip>
