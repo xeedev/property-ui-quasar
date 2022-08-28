@@ -198,6 +198,7 @@ export default {
       onRequest()
     })
     function uploadFile(event) {
+      $q.loading.show();
       this.onFilesPicked(event);
     }
     async  function  onFilesPicked (event) {
@@ -211,8 +212,6 @@ export default {
       if (!files.length) {
         return;
       }
-
-      $q.loading.show();
       axios
         .post(process.env.BASE_URL+'fileUpload', formData, {
           headers: {
@@ -224,8 +223,8 @@ export default {
           let url = response.data.url;
             url = process.env.ROOT_URL+ '/' + url
             uploadedImage.value = url.replace('public/', 'storage/')
+          $q.loading.hide();
         });
-      $q.loading.hide();
     }
     async function save(action){
       let payload = {
